@@ -1,5 +1,4 @@
-
-
+# Spotify-compatible audio feature mappings for each mood
 mood_to_features = {
     "sad":    {"valence": 0.2, "energy": 0.3, "tempo": 70},
     "happy":  {"valence": 0.9, "energy": 0.8, "tempo": 120},
@@ -8,6 +7,7 @@ mood_to_features = {
     "angry":  {"valence": 0.3, "energy": 1.0, "tempo": 150},
 }
 
+# Keywords matched from user prompt to detect mood
 def detect_mood_from_prompt(prompt):
     prompt = prompt.lower()
 
@@ -22,11 +22,36 @@ def detect_mood_from_prompt(prompt):
     elif any(word in prompt for word in ["angry", "mad", "rage", "revenge"]):
         return "angry"
     else:
-        return "chill"  # fallback default
-    
+        return "chill"
+
+# Valid Spotify seed genres as of May 2025
+VALID_GENRES = {
+    "acoustic", "ambient", "blues", "classical", "club", "country", "dance", "disco",
+    "edm", "electro", "electronic", "folk", "funk", "gospel", "grunge", "happy", "hip-hop",
+    "house", "indie", "jazz", "k-pop", "latin", "metal", "party", "piano", "pop", "punk",
+    "r-n-b", "reggae", "rock", "romance", "soul", "study", "techno", "trance", "trip-hop", "work-out"
+}
+
+# Map each mood to Spotify-safe genres
+def mood_to_genres(mood):
+    genre_map = {
+        "happy": ["pop", "dance", "electronic"],
+        "sad": ["acoustic", "piano", "indie"],
+        "chill": ["ambient", "study", "piano"],
+        "hype": ["hip-hop", "edm", "work-out"],
+        "angry": ["metal", "rock", "punk"],
+        "romantic": ["r-n-b", "soul", "romance"]
+    }
+
+    fallback = ["pop"]
+    selected = genre_map.get(mood, fallback)
+    # Filter only valid genres
+    return [g for g in selected if g in VALID_GENRES]
+
+# Test locally via CLI
 if __name__ == "__main__":
     prompt = input("What's the vibe? > ")
     mood = detect_mood_from_prompt(prompt)
     print("🎯 Detected mood:", mood)
     print("🧪 Target features:", mood_to_features[mood])
-
+    print("🎵 Valid genres:", mood_to_genres(mood))

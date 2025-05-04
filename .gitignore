@@ -1,0 +1,19 @@
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# VSCode config
+.vscode/
+
+# Streamlit logs and cache
+.streamlit/
+
+# Mac OS file metadata
+.DS_Store
