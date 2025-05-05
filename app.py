@@ -7,11 +7,13 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from valid_genres import VALID_SPOTIFY_GENRES
+from mood_parser import detect_mood_from_prompt, mood_to_features, mood_to_genres
+
 
 # Load environment variables
 load_dotenv()
-client_id = os.getenv("CLIENT_ID")
-client_secret = os.getenv("CLIENT_SECRET")
+client_id = os.getenv("SPOTIPY_CLIENT_ID")
+client_secret = os.getenv("SPOTIPY_CLIENT_SECRET")
 
 # Initialize Spotify API
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
@@ -21,17 +23,6 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     scope="playlist-modify-public playlist-modify-private user-read-private user-library-read"
 ))
 
-# Mood to genre mapping
-def mood_to_genres(mood):
-    genre_map = {
-        "happy": ["pop", "dance"],
-        "sad": ["acoustic", "piano"],
-        "chill": ["ambient", "study"],
-        "hype": ["hip-hop", "edm"],
-        "angry": ["metal", "punk"],
-        "romantic": ["r-n-b", "soul"]
-    }
-    return [g for g in genre_map.get(mood, ["pop"]) if g in VALID_SPOTIFY_GENRES][:1]
 
 # UI setup
 st.title("🎶 House of Playlist")
