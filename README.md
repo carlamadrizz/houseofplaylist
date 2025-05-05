@@ -10,8 +10,8 @@ A simple AI tool that turns mood-based text input (like “hype gym workout” o
 - Heuristic mapping of moods to Spotify-supported genres
 - Playlist generation via **Spotify Search API** (not recommendations)
 - Two interfaces:
-  - ✅ `Streamlit` for interactive browser use
-  - ✅ `Command Line` for quick testing
+  - `Streamlit` for interactive browser use
+  - `Command Line` for quick testing
 
 ---
 
@@ -21,9 +21,9 @@ Due to recent deprecations by Spotify:
 
 | Deprecated Feature          | Status             | Impact                                                  |
 | --------------------------- | ------------------ | ------------------------------------------------------- |
-| `/recommendations` endpoint | 🔴 Deprecated      | Cannot generate playlists using valence/energy directly |
-| `/audio-features` endpoint  | 🔴 Deprecated/403s | Cannot filter tracks based on audio features            |
-| `/search` endpoint          | ✅ Still Supported | Used to find songs by genre                             |
+| `/recommendations` endpoint | Deprecated      | Cannot generate playlists using valence/energy directly |
+| `/audio-features` endpoint  | Deprecated/403s | Cannot filter tracks based on audio features            |
+| `/search` endpoint          | Still Supported | Used to find songs by genre                             |
 
 As a result, our app now uses only **genre-based filtering**, which is less accurate than audio features but still functional.
 
