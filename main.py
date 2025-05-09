@@ -1,79 +1,62 @@
-# main.py — CLI version for AI Playlist Generator (genre-based only)
+# main.py — CLI version using TextBlob-based AI logic
 
 from dotenv import load_dotenv
 import os
 import spotipy
+import random
 from spotipy.oauth2 import SpotifyOAuth
-from mood_parser import detect_mood_from_prompt, mood_to_features
+from mood_parser import get_genres_for_input
 from valid_genres import VALID_SPOTIFY_GENRES
 
-# Load .env credentials
+# Load Spotify credentials
 load_dotenv()
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
 
-# Initialize Spotify client
+# Spotify client
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=client_id,
     client_secret=client_secret,
     redirect_uri="http://127.0.0.1:8888/callback",
-    scope="playlist-modify-public playlist-modify-private user-read-private user-library-read",
-    open_browser=True,
-    cache_path=".cache",
-    show_dialog=True
+    scope="playlist-modify-public playlist-modify-private user-read-private",
+    cache_path=".cache"
 ))
 
-# Identify user
-user = sp.current_user()
-user_id = user["id"]
-print(f"👤 Logged in as: {user['display_name']} ({user_id})")
-
-# Genre mapping based on mood
-def mood_to_genres(mood):
-    genre_map = {
-        "happy": ["pop", "dance"],
-        "sad": ["acoustic", "piano"],
-        "chill": ["ambient", "study"],
-        "hype": ["hip-hop", "edm"],
-        "angry": ["metal", "punk"],
-        "romantic": ["r-n-b", "soul"]
-    }
-    return [g for g in genre_map.get(mood, ["pop"]) if g in VALID_SPOTIFY_GENRES][:1]
-
 # Get user input
-prompt = input("What's the vibe? > ").strip()
+prompt = input("Describe your vibe: ").strip()
 if not prompt:
-    print("❌ No vibe entered.")
+    print("Please enter something.")
     exit()
 
-# Detect mood and map genre
-mood = detect_mood_from_prompt(prompt)
-genres = mood_to_genres(mood)
+# Analyze mood and genres
+mood, genres = get_genres_for_input(prompt)
+selected_genre = random.choice(genres) if genres else "pop"
 
-print(f"🎯 Mood: {mood}")
-print(f"🔍 Searching for tracks in genre: {genres[0]}")
+print(f"Mood detected: {mood}")
+print(f"Using genre: {selected_genre}")
 
-# Perform search query
+# Search for tracks
 try:
-    results = sp.search(q=f"genre:{genres[0]}", type="track", limit=30)
+    results = sp.search(q=f"genre:{selected_genre}", type="track", limit=30)
     tracks = results["tracks"]["items"]
-    track_uris = [track["uri"] for track in tracks]
+    uris = [t["uri"] for t in tracks]
 except Exception as e:
-    print(f"❌ Spotify search failed: {e}")
+    print("Spotify search failed:", e)
     exit()
 
-if not track_uris:
-    print("⚠️ No tracks found.")
+if not uris:
+    print("No tracks found.")
     exit()
 
 # Create playlist
+user = sp.current_user()
 playlist = sp.user_playlist_create(
-    user=user_id,
-    name=f"House of Playlist - {mood.title()} Vibes",
-    public=True,
-    description=f"Generated from: {prompt}"
+    user=user["id"],
+    name=f"{mood.title()} Vibes",
+    description=f"Generated from: {prompt}",
+    public=True
 )
-sp.playlist_add_items(playlist["id"], track_uris)
+sp.playlist_add_items(playlist["id"], uris)
 
-print("✅ Playlist created!")
-print("🎧 Link:", playlist["external_urls"]["spotify"])
+print("Playlist created!")
+print("Link:", playlist["external_urls"]["spotify"])
